@@ -1,0 +1,115 @@
+   
+<!DOCTYPE html>
+<html lang=en>
+  <head>
+<meta charset="utf-8">
+<link rel="stylesheet" href="/~noonan/course.css">
+  <title>DynamoRIO for Security</title>
+</head>
+<body> <a name="top"></a>
+<div class="header">
+<h1>Lab 4 (Optional): Applying Compiler techniques to detect Memory Vulnerabilities</h1></div>
+
+</p><p>
+The goal of the project is to learn how to use compiler techniques to solve problems in other domains, e.g., cybersecurity.
+In this project, you will use <a href="https://dynamorio.org">DynamoRIO</a> to identify memory-safety vulnerabilities, the most prevalent and severe vulnerabilities in native languages such as C/C++.
+DynamoRIO is a state-of-the-art dynamic binary instrumentation framework for the development of dynamic program analysis tools. 
+</p>
+
+
+<p><hr><p>
+<h3></h3>
+<h3>Building DynamoRIO from Source on Linux</h3>
+# Install dependencies for Ubuntu.<br>
+<span>&#36;</span> sudo apt-get install cmake g++ g++-multilib doxygen git zlib1g-dev libunwind-dev libsnappy-dev liblz4-dev<br>
+# Get sources and initialize the submodules.<br>
+<span>&#36;</span> git clone --recurse-submodules -j4 https://github.com/DynamoRIO/dynamorio.git<br>
+# Make a separate build directory. Building in the source directory is not supported.<br>
+<span>&#36;</span> cd dynamorio && mkdir build && cd build<br>
+# Generate makefiles with CMake. Pass in the path to your source directory.<br>
+<span>&#36;</span> cmake ..<br>
+# Build.<br>
+<span>&#36;</span> make -j<br>
+
+<p><hr><p>
+<h3></h3>
+<h3>What you have</h3>
+wrap.c is a sample released with DynamoRIO, which is intented to overload malloc() and obtain its allocated memory size on the heap.<br>
+wrap.c is in &lt;Your_DynamoRIO_install_path&gt;/build/api/samples
+
+<p><hr><p>
+<h3></h3>
+<h3>What you need to do</h3>
+
+In this project, you will enrich wrap.c to identify basic memory leak and double free vulnerabilities. From this project, you will learn that compilers do not always generate secured code.
+
+<br>
+<ul>
+  <li>
+  <b>Memory leaks:</b> A memory leak occurs when programmers allocate memory on the heap and forget to delete it.
+  </li>
+/* An example */<br>
+void f() { <br>
+&nbsp;&nbsp;&nbsp;int* ptr = (int*)malloc(sizeof(int));<br>
+&nbsp;&nbsp;&nbsp;/* Do some work */<br>
+&nbsp;&nbsp;&nbsp;/* Return without freeing ptr */ <br>
+&nbsp;&nbsp;&nbsp;return; <br>
+}<br>
+  <li>
+  <b>Double free:</b> A double free occurs when free() is called more than once with the same memory address as an argument. 
+  </li>
+/* An example */<br>
+void f() { <br>
+&nbsp;&nbsp;&nbsp;int* ptr = (int*)malloc(sizeof(int));<br>
+&nbsp;&nbsp;&nbsp;/* Do some work */<br>
+&nbsp;&nbsp;&nbsp;free (ptr);<br>
+&nbsp;&nbsp;&nbsp;/* Do some work */<br>
+&nbsp;&nbsp;&nbsp;/* Free the same memory region again */<br>
+&nbsp;&nbsp;&nbsp;free (ptr);<br>
+&nbsp;&nbsp;&nbsp;return;<br>
+}<br>
+</ul>
+
+<h4>Tasks and hints</h4> 
+(1) Read wrap.c to understand function overloading/wrapping in DynamoRIO.<br>
+(2) Besides the allocated memory size (already implemented in wrap.c), obtain the start address of the allocated memory. <b>Hint</b>: use DynamoRIO API: <a href="https://dynamorio.org/group__drwrap.html#gae993f55e025cf80ae67ed398b35a1b61">drwrap_get_retval</a><br>
+(3) Apply (1) and (2) to wrap the other malloc family of functions (including realloc and calloc) and free() to obtain their touched memory.<br> 
+(4) Develop a mechanism to detect memory leaks and double frees.<br> 
+(5) Output the number of occurrences of memory leaks and double frees in the tests.
+
+<h4>Test cases</h4> 
+The TA will release a few test cases. Make sure your code can pass the tests.
+
+<h4>How to run wrap.c on Linux</h4>
+# in &lt;Your_DynamoRIO_install_path&gt;/build <br>
+$ bin64/drrun -c api/bin/libwrap.so  -- &lt;Your_test_case&gt; &lt;Your_test_case_arguments&gt;
+
+<p><hr><p>
+<h3>Requirements for Submission</h3>
+
+<ol>
+    <li> 
+    wrap.c including necessary code comments 
+    </li>
+</ol>
+
+<p><hr><p>
+<h3>How to install a Linux virtual machine on Windows/MacOS (skip if you have access to a real Linux machine)</h3>
+
+<ol>
+    <li> 
+    Guide to install VirtualBox: https://www.youtube.com/watch?v=8mns5yqMfZk
+    </li>
+<ol>
+    Where to download VirtualBox: https://www.virtualbox.org/wiki/Downloads
+</ol>
+    <li> 
+    Guide to install Ubuntu on VirtualBox: https://www.youtube.com/watch?v=8mns5yqMfZk 
+    </li>
+<ol>
+    Where to download Ubuntu: https://ubuntu.com/download/desktop
+</ol>
+</ol>
+
+
+</body>	</html>
